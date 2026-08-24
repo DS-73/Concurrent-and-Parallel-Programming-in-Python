@@ -4,6 +4,7 @@ from Workers.SquaredSumWorker import SquaredSumWorker
 
 
 def main():
+    """Run threaded worker examples: squared sum and sleepy workers."""
     sum_start_time = time.time()
     threads = []
 

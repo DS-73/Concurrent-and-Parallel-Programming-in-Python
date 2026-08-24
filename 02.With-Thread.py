@@ -3,6 +3,7 @@ import threading
 
 
 def calculate_sum_squares(n: int) -> int:
+    """Calculate and print the sum of squares from 0 to n-1."""
     sum_squares = 0
     for i in range(n):
         sum_squares += i ** 2
@@ -11,10 +12,12 @@ def calculate_sum_squares(n: int) -> int:
 
 
 def sleep_a_little(seconds: int):
+    """Sleep for the specified number of seconds."""
     time.sleep(seconds)
 
 
 def main():
+    """Run threaded tasks: calculate sum of squares and sleep delays concurrently."""
     square_time_start = time.time()
     current_threads = []
 
