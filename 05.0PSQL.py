@@ -16,6 +16,10 @@ def create_table(cur):
     response = cur.execute(query)
     print(response)
 
+def delete_table(cur):
+    query = "DELETE FROM PRICES;"
+    response = cur.execute(query)
+    print(response)
 
 def main():
     conn = psycopg2.connect(f'postgres://{os.getenv("PSQL_USER")}:{os.getenv("PSQL_PASS")}@pg-2cfd852e-testingp348-273c.c.aivencloud.com:14375/defaultdb?sslmode=require')
@@ -28,8 +32,9 @@ def main():
     version = cur.fetchone()[0]
     print(version)
 
-    
     # create_table(cur)
+    delete_table(cur)
+    conn.commit()
 
 
 if __name__ == "__main__":
