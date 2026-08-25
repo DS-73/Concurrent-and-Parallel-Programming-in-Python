@@ -1,8 +1,8 @@
-import time
 import threading
+import time
 
 
-def calculate_sum_squares(n: int) -> int:
+def calculate_sum_squares(n: int):
     """Calculate and print the sum of squares from 0 to n-1."""
     sum_squares = 0
     for i in range(n):
