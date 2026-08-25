@@ -1,8 +1,7 @@
-import time
 import threading
-
+import time
+from datetime import datetime, timezone
 import requests
-from datetime import datetime
 from lxml import html
 
 
@@ -54,8 +53,11 @@ class YahooFinance(threading.Thread):
             text = html.fromstring(response.text)
             price_elements = text.xpath("/html/body/div/div[4]/main/section/section/section/section/section[1]/div[2]/div[1]/section/div/section/div[1]/span[1]")
 
-            self._price = float(price_elements[0].text.replace(",", "").strip())
-            self._extracted_time = datetime.now()
+            if not price_elements:
+                raise ValueError(f"No price element found for {self._symbol}")
 
-        except Exception:
+            self._price = float(price_elements[0].text.replace(",", "").strip())
+            self._extracted_time = datetime.now(timezone.utc)
+
+        except (AttributeError, IndexError, TypeError, ValueError):
             print(f"Could not parse price for {self._symbol}")
