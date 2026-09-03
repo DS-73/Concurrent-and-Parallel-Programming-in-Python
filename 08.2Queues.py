@@ -1,6 +1,5 @@
 import os
 import time
-from typing import Any
 from multiprocessing import Process, Queue
 
 def check_value_in_list(x, s, num, queue):
