@@ -1,32 +1,49 @@
-queues:
-    - name: SymbolQueue
-      description: contain symbols to be scraped from Wikipedia
+# Pipeline Configuration: Wikipedia -> Yahoo Finance -> PostgreSQL
+#
+# This YAML defines a data processing pipeline with three stages:
+# 1. WikiWorker: Scrapes S&P 500 symbols from Wikipedia
+# 2. YahooFinanceWorker: Fetches current prices from Yahoo Finance
+# 3. PostgresWorker: Stores price data in PostgreSQL
+#
+# Architecture:
+#   - Queues provide thread-safe communication between stages
+#   - Workers run as separate threads/processes
+#   - Instances parameter controls parallelism per stage
 
-    - name: PostgresUploading
-      description: Contains data that need to be uploaded to postsgres
+queues:
+  - name: SymbolQueue
+    description: "Contains stock symbols to be scraped from Wikipedia"
+
+  - name: PostgresUploading
+    description: "Contains price data ready for PostgreSQL insertion"
 
 workers:
+  # Stage 1: Symbol Producer
   - name: WikiWorker
-    description: THis scraps raw wikipedia page and pulls out symbols
+    description: "Scrapes Wikipedia page and extracts S&P 500 company symbols"
     location: Workers.WikiWorker
     class: WikiWorker
     instances: 1
     input_values:
-      - https://en.wikipedia.org/wiki/List_of_S%26P_500_companies
+      - "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     output_queue:
       - SymbolQueue
 
-  - name: YahooFinanceWorkder
-    description: pulls price data for a specific stock symbol from yahoo YahooFinanceWOrkder
+  # Stage 2: Price Fetcher (Consumer of SymbolQueue, Producer for PostgresUploading)
+  - name: YahooFinanceWorker
+    description: "Fetches current price data for symbols from Yahoo Finance"
     location: Workers.YahooFinance
-    class: YahooFinance 
+    class: YahooFinance
     instances: 1
     input_values: SymbolQueue
     output_queue:
       - PostgresUploading
 
+  # Stage 3: Database Writer (Consumer of PostgresUploading)
   - name: PostgresWorker
-    description: take stock data and save in postsgres
+    description: "Takes price data and saves to PostgreSQL database"
     location: Workers.PostgresWorker
     class: PostgresMasterScheduler
+    instances: 2
     input_queue: PostgresUploading
+    # No output_queue - this is the final stage
